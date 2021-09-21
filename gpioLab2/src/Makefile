@@ -3,7 +3,7 @@
 #
 
 # C source files for the project
-PROJ_NAME = simple_monitor
+PROJ_NAME = gpioLab2
 SRCS  = my_main.c mycode.s mytest.c example.c
 BUILD = build
 #PROCESSOR = STM32G474xx

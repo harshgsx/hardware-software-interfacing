@@ -7,9 +7,9 @@ PROJ_NAME = gpioLab2
 SRCS  = my_main.c mycode.s mytest.c example.c
 BUILD = build
 #PROCESSOR = STM32G474xx
-#PROCESSOR = STM32L432xx
+PROCESSOR = STM32L432xx
 #PROCESSOR  = STM32F303xE
-PROCESSOR  = STM32F411xE
+#PROCESSOR  = STM32F411xE
 ###################################################
 
 # Processor specific bits

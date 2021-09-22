@@ -49,6 +49,7 @@ ParserReturnVal_t CmdLed(int mode)
     return CmdReturnBadParameter1;
   }
 
+  printf("Inside val function : %ld \n", val);
   val = val ? 1 : 0;
 #if defined(LD2_Pin)
   HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,val);

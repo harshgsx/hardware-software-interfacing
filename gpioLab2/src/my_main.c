@@ -52,8 +52,10 @@ ParserReturnVal_t CmdLed(int mode)
   printf("Inside val function : %ld \n", val);
   val = val ? 1 : 0;
 #if defined(LD2_Pin)
+  printf("Inside LD2 Port\n");
   HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,val);
 #elif defined(LD3_Pin)
+  printf("Inside LD3 Port\n");
   HAL_GPIO_WritePin(LD3_GPIO_Port,LD3_Pin,val);
 #endif
   

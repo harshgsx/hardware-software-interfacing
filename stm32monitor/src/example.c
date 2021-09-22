@@ -46,4 +46,4 @@ ParserReturnVal_t CmdExample(int mode)
   return CmdReturnOk;
 }
 
-ADD_CMD("example",CmdExample,"                Example Command")
+ADD_CMD("hstest",CmdExample,"                Harhs's Testing first command")

@@ -22,15 +22,18 @@ void GPIOInit(void *data)
    __HAL_RCC_GPIOB_CLK_ENABLE();
    __HAL_RCC_GPIOC_CLK_ENABLE();
   
-  HAL_GPIO_WritePin(GPIOB,(GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7),GPIO_PIN_RESET);
   
-  GPIO_InitTypeDef GPIO_InitStruct;
-  GPIO_InitStruct.Pin = (GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7);
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  GPIO_InitStruct.Alternate = 0;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  GPIO_InitTypeDef
+GPIO_InitStruct;
+GPIO_InitStruct.Pin = (GPIO_PIN_0
+| GPIO_PIN_1 | GPIO_PIN_5 | GPIO_PIN_7 | GPIO_PIN_6 );
+GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+GPIO_InitStruct.Pull = GPIO_NOPULL;
+GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+GPIO_InitStruct.Alternate = 0;
+HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+printf("Inside INIT Function\n");
 }
 
 void ExampleTask(void *data)
@@ -69,71 +72,71 @@ ParserReturnVal_t CmdExample(int mode)
       case 3:
       if(ledStaus == 1)
       {
-        HAL_GPIO_WritePin(GPIOB,GPIO_PIN_3,1);
+        HAL_GPIO_WritePin(GPIOA,GPIO_PIN_3,1);
       }
       else if(ledStaus == 0)
       {
-        HAL_GPIO_WritePin(GPIOB,GPIO_PIN_3,0);
+        HAL_GPIO_WritePin(GPIOA,GPIO_PIN_3,0);
       }else
       {
-        printf("Invalid Signal status. GPIO_PIN_3 Provide 0 or 1.");  
+        printf("Invalid Signal status. GPIO_PIN_3 Provide 0 or 1.\n");  
       }
       break;
       case 4:
       if(ledStaus == 1)
       {
-        HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,1);
+        HAL_GPIO_WritePin(GPIOA,GPIO_PIN_4,1);
       }
       else if(ledStaus == 0)
       {
-        HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,0);
+        HAL_GPIO_WritePin(GPIOA,GPIO_PIN_4,0);
       }else
       {
-        printf("Invalid Signal status. GPIO_PIN_4 Provide 0 or 1."); 
+        printf("Invalid Signal status. GPIO_PIN_4 Provide 0 or 1.\n"); 
       }
       break;
       case 5:
       if(ledStaus == 1)
       {
-        HAL_GPIO_WritePin(GPIOB,GPIO_PIN_5,1);
+        HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,1);
       }
       else if(ledStaus == 0)
       {
-        HAL_GPIO_WritePin(GPIOB,GPIO_PIN_5,0);
+        HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,0);
       }else
       {
-        printf("Invalid Signal status. GPIO_PIN_5 Provide 0 or 1.");  
+        printf("Invalid Signal status. GPIO_PIN_5 Provide 0 or 1.\n");  
       }
       break;
       case 6:
       if(ledStaus == 1)
       {
-        HAL_GPIO_WritePin(GPIOB,GPIO_PIN_6,1);
+        HAL_GPIO_WritePin(GPIOA,GPIO_PIN_6,1);
       }
       else if(ledStaus == 0)
       {
-        HAL_GPIO_WritePin(GPIOB,GPIO_PIN_6,0);
+        HAL_GPIO_WritePin(GPIOA,GPIO_PIN_6,0);
       }else
       {
-        printf("Invalid Signal status. GPIO_PIN_6 Provide 0 or 1.");  
+        printf("Invalid Signal status. GPIO_PIN_6 Provide 0 or 1.\n");  
       }
       break;
       case 7:
       if(ledStaus == 1)
       {
-        HAL_GPIO_WritePin(GPIOB,GPIO_PIN_7,1);
+        HAL_GPIO_WritePin(GPIOA,GPIO_PIN_7,1);
       }
       else if(ledStaus == 0)
       {
-        HAL_GPIO_WritePin(GPIOB,GPIO_PIN_7,0);
+        HAL_GPIO_WritePin(GPIOA,GPIO_PIN_7,0);
       }else
       {
-        printf("Invalid Signal status. GPIO_PIN_7 Provide 0 or 1.");  
+        printf("Invalid Signal status. GPIO_PIN_7 Provide 0 or 1.\n");  
       }
       break;
 
       default:
-      printf("Other selections are not avaliable. Please select following pins, D4, D5, D11-D13.");
+      printf("Other selections are not avaliable. Please select following pins, PA5 (D13), PA6 (D12), PA7 (D11) .\n");
       break;
     }      
   } else {

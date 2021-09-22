@@ -19,15 +19,18 @@ void GPIOInit(void *data)
    */
 
    __HAL_RCC_GPIOA_CLK_ENABLE();
-   //__HAL_RCC_GPIOB_CLK_ENABLE();
-   //__HAL_RCC_GPIOC_CLK_ENABLE();
+   __HAL_RCC_GPIOB_CLK_ENABLE();
+   __HAL_RCC_GPIOC_CLK_ENABLE();
+  
+  HAL_GPIO_WritePin(GPIOB,(GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7),GPIO_PIN_RESET);
+  
   GPIO_InitTypeDef GPIO_InitStruct;
-  GPIO_InitStruct.Pin = (GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_5 | GPIO_PIN_4);
+  GPIO_InitStruct.Pin = (GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7);
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   GPIO_InitStruct.Alternate = 0;
-  HAL_GPIO_Init(LD3_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
 
 void ExampleTask(void *data)
@@ -44,7 +47,7 @@ ADD_TASK(ExampleTask,  /* This is the name of the function for the task */
 	 GPIOInit,  /* This is the initialization function */
 	 NULL,         /* This pointer is passed as 'data' to the functions */
 	 0,            /* This is the number of milliseconds between calls */
-	 "This is the help text for the task")
+	 "Dummy example task that runs continiously")
   
 
 ParserReturnVal_t CmdExample(int mode)
@@ -61,29 +64,82 @@ ParserReturnVal_t CmdExample(int mode)
 
   if(rc != -1 && rc2!= -1)
   {
-    if(pinNmber == 4)
+    switch(pinNmber)
     {
-    if(ledStaus == 1)
-    {
-      HAL_GPIO_WritePin(LD3_GPIO_Port,GPIO_PIN_4,1);
-    }
-    else if(ledStaus == 0)
-    {
-      HAL_GPIO_WritePin(LD3_GPIO_Port,GPIO_PIN_4,0);
-    }
-    } else if(pinNmber == 5)
-    {
-    if(ledStaus == 1)
-    {
-      HAL_GPIO_WritePin(LD3_GPIO_Port,GPIO_PIN_5,1);
-    }
-    else if(ledStaus == 0)
-    {
-      HAL_GPIO_WritePin(LD3_GPIO_Port,GPIO_PIN_5,0);
-    }
-    } 
+      case 3:
+      if(ledStaus == 1)
+      {
+        HAL_GPIO_WritePin(GPIOB,GPIO_PIN_3,1);
+      }
+      else if(ledStaus == 0)
+      {
+        HAL_GPIO_WritePin(GPIOB,GPIO_PIN_3,0);
+      }else
+      {
+        printf("Invalid Signal status. GPIO_PIN_3 Provide 0 or 1.");  
+      }
+      break;
+      case 4:
+      if(ledStaus == 1)
+      {
+        HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,1);
+      }
+      else if(ledStaus == 0)
+      {
+        HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,0);
+      }else
+      {
+        printf("Invalid Signal status. GPIO_PIN_4 Provide 0 or 1."); 
+      }
+      break;
+      case 5:
+      if(ledStaus == 1)
+      {
+        HAL_GPIO_WritePin(GPIOB,GPIO_PIN_5,1);
+      }
+      else if(ledStaus == 0)
+      {
+        HAL_GPIO_WritePin(GPIOB,GPIO_PIN_5,0);
+      }else
+      {
+        printf("Invalid Signal status. GPIO_PIN_5 Provide 0 or 1.");  
+      }
+      break;
+      case 6:
+      if(ledStaus == 1)
+      {
+        HAL_GPIO_WritePin(GPIOB,GPIO_PIN_6,1);
+      }
+      else if(ledStaus == 0)
+      {
+        HAL_GPIO_WritePin(GPIOB,GPIO_PIN_6,0);
+      }else
+      {
+        printf("Invalid Signal status. GPIO_PIN_6 Provide 0 or 1.");  
+      }
+      break;
+      case 7:
+      if(ledStaus == 1)
+      {
+        HAL_GPIO_WritePin(GPIOB,GPIO_PIN_7,1);
+      }
+      else if(ledStaus == 0)
+      {
+        HAL_GPIO_WritePin(GPIOB,GPIO_PIN_7,0);
+      }else
+      {
+        printf("Invalid Signal status. GPIO_PIN_7 Provide 0 or 1.");  
+      }
+      break;
+
+      default:
+      printf("Other selections are not avaliable. Please select following pins, D4, D5, D11-D13.");
+      break;
+    }      
+  } else {
+    printf("Please provide valid arguments! \n");
   }
   return CmdReturnOk;
 }
 
-ADD_CMD("es",CmdExample,"                Controls GPIO4, GPIO5 D11 and D12")
+ADD_CMD("gpio",CmdExample,"                Control D4, D5, D11-D13 with 0 and 1")

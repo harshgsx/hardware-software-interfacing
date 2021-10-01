@@ -4,7 +4,7 @@
 
 # C source files for the project
 PROJ_NAME = gpioLab2
-SRCS  = my_main.c mycode.s mytest.c example.c
+SRCS  = my_main.c mycode.s mytest.c gpio_example.c
 BUILD = build
 #PROCESSOR = STM32G474xx
 #PROCESSOR = STM32L432xx

@@ -1,5 +1,12 @@
-/* my_main.c: main file for monitor */
-#include <stdio.h>
+/*******************************************************************************
+  * File Name          : my_main.c
+  * Description        : Allows user to controll custom commands and demonstration of a small RTOS.
+                       : This src code follows the template provided in the stm32montor. 
+  * Author             : Harsh Hirenbhai Shah
+                       : Arsh Sandhu
+  * Date               : Sep/22/2021
+  ******************************************************************************
+  */#include <stdio.h>
 #include <stdint.h>
 #include <ctype.h>
 #include <string.h>

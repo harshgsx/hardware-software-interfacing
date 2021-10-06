@@ -5,7 +5,7 @@
                        : https://deepbluembedded.com/stm32-timer-interrupt-hal-example-timer-mode-lab/
   * Author             : Harsh Hirenbhai Shah
                        : Arsh Sandhu
-  * Date               : Oct-1-2021
+  * Date               : Oct-6-2021
   ******************************************************************************
   */
 

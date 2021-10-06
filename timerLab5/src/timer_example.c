@@ -51,7 +51,7 @@ void DelayMS (uint16_t ms)
   */
 void timerInit() {
   htim11.Instance = TIM11;
-  htim11.Init.Prescaler = 90-1;
+  htim11.Init.Prescaler = 80;
   htim11.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim11.Init.Period = 65535;
   htim11.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -107,7 +107,7 @@ ParserReturnVal_t timerEvent(int mode)
 
   if(mode != CMD_INTERACTIVE) return CmdReturnOk;
 
-   uint32_t delay, rc;
+   uint32_t delay, rc, blinkRepeateCount = 0,rcTwo, timer_val;
    
   rc=fetch_uint32_arg(&delay);
   if(rc)
@@ -116,13 +116,40 @@ ParserReturnVal_t timerEvent(int mode)
     return CmdReturnBadParameter1;
   }
 
-  printf("Built LED will be turnded ON and OFF for %ld microseconds \n", delay);
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-	DelayMS(delay);
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-	DelayMS(delay);
-  WDTFeed();
+  rcTwo = fetch_uint32_arg(&blinkRepeateCount);
+  if(rcTwo)
+  {
+    blinkRepeateCount = 1;
+    //printf("User did not provided blink count, so blinking Built-In LED once. ")
+  }
+  printf("Built-In LED will be turnded ON and OFF for %ld microseconds and will repeate %ld times. \n", delay, blinkRepeateCount);
+
+  for(int repeateCycle = 1; repeateCycle < blinkRepeateCount+1; repeateCycle++)
+  {
+    printf("Blinking Count: %d\n", repeateCycle);
+	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+	  DelayMS(delay);
+	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+	  DelayMS(delay);
+    timer_val = __HAL_TIM_GET_COUNTER(&htim11);
+    printf("Ticks: %ld\n", timer_val);
+    HAL_TIM_PeriodElapsedCallback(&htim11);
+    //
+  }
+  //WDTFeed();
   return CmdReturnOk;
 }
-
-ADD_CMD("tdelay",timerEvent,"                timerdelay <microseconds delay>")
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  // Check which version of the timer triggered this callback and toggle LED
+  if (htim == &htim11 )
+  { 
+    //uint32_t timer_val; 
+    __HAL_TIM_SET_COUNTER(&htim11, 0);
+    //timer_val = __HAL_TIM_GET_COUNTER(&htim11);
+    //printf("Ticks - In callback: %ld\n", timer_val);
+    WDTFeed();
+    //TIM11->CNT = 0;
+  }
+}
+ADD_CMD("tdelay",timerEvent,"                timerdelay <microseconds delay> <repeate count1>")

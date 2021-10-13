@@ -226,3 +226,100 @@ return CmdReturnOk;
 }
 
 ADD_CMD("se",enableDisableStepper,"                stepperenable <0|1>");
+
+ParserReturnVal_t  trapoStepperRunner(int mode)
+{
+  if(mode != CMD_INTERACTIVE) return CmdReturnOk;
+  stepperInit();
+  timerInit();
+  uint32_t stepTime, rc, directon, directionRc, rotationCount, rotationCountRc, delayOne, delayOneRc, delayTwo, delayTwoRc;
+   
+  rc=fetch_uint32_arg(&stepTime);
+  if(rc)
+  {
+    printf("Please enable or disable stepper controller.\n");
+    return CmdReturnBadParameter1;
+  }
+
+  delayOneRc=fetch_uint32_arg(&delayOne);
+  if(delayOneRc)
+  {
+    printf("Please add delay One.\n");
+    return CmdReturnBadParameter1;
+  }
+  
+  delayTwoRc=fetch_uint32_arg(&delayTwo);
+  if(delayTwoRc)
+  {
+    printf("Please add delay two.\n");
+    return CmdReturnBadParameter1;
+  }
+
+  directionRc=fetch_uint32_arg(&directon);
+  if(directionRc)
+  {
+    printf("Please provide direction.\n");
+    return CmdReturnBadParameter1;
+  }
+
+  rotationCountRc=fetch_uint32_arg(&rotationCount);
+  if(rotationCountRc)
+  {
+    printf("Please provide rotation Count.\n");
+    return CmdReturnBadParameter1;
+  }
+
+  if(directon == 1)
+  {
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET);
+  } else if(directon == 0)
+  {
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
+  }
+  if(isStepperEnabled == 1)
+  {
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);  
+  }
+
+
+for(int i = 0; i < rotationCount; i++)
+{
+  	for(int x = 0; x<stepTime; x++)
+	  {
+      //printf("inside for loop %d\n", x);
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_SET);
+		  DelayNS(delayOne);
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_RESET);
+		  DelayNS(delayOne);
+      WDTFeed();
+	  }
+
+    for(int x = 0; x<stepTime; x++)
+	  {
+      //printf("inside for loop %d\n", x);
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_SET);
+		  DelayNS(delayTwo);
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_RESET);
+		  DelayNS(delayTwo);
+      WDTFeed();
+	  }
+
+    for(int x = 0; x<stepTime; x++)
+	  {
+      //printf("inside for loop %d\n", x);
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_SET);
+		  DelayNS(delayOne);
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_RESET);
+		  DelayNS(delayOne);
+      WDTFeed();
+	  }
+
+
+
+} 
+
+
+return CmdReturnOk;
+}
+
+ADD_CMD("trapo",trapoStepperRunner,"                trapo <step> <delay1> <delay2> <direction> <rotationCount> CW=0, CCW=1");

@@ -1,11 +1,11 @@
 /*******************************************************************************
-  * File Name          : timer_example.c
-  * Description        : Allows user to control TIM11 with user defined precice custom delay.                       
-                       : It also takes the ref from the following websites. 
-                       : https://deepbluembedded.com/stm32-timer-interrupt-hal-example-timer-mode-lab/
+  * File Name          : stepper_example.c
+  * Description        : This program allows user to controll the Speed, Steps and Rotation degree of the stepper motor. 
+                       : It utilizes the NS and MS timer function from the timer lab that uses TIM11 without interrupts.
+                       : D6 -> STEP, D5 -> FR and A2 -> VREF  
   * Author             : Harsh Hirenbhai Shah
                        : Arsh Sandhu
-  * Date               : Oct-6-2021
+  * Date               : Oct-13-2021
   ******************************************************************************
   */
 
@@ -66,7 +66,7 @@ void timerInit() {
 }
 
 /**
-  * @brief GPIO Initialization Function
+  * @brief GPIO Initialization Function for stepper motors
   * @param None
   * @retval None
   */
@@ -107,12 +107,11 @@ void stepperInit() {
 } 
 
 /**
-  * @brief Timer event function
+  * @brief Moter event function
   * @param int mode of the event, does it require interaction?
   * @retval ParserReturnVal_t enum. 
   */
-
-ParserReturnVal_t timerEvent(int mode)
+ParserReturnVal_t motorEvent(int mode)
 {
   stepperInit();
   timerInit();
@@ -128,26 +127,24 @@ if(isStepperEnabled == 0)
 
  
 uint32_t delay, rc, step = 0,rcTwo, isCW, rcisCW;
-   
-rc=fetch_uint32_arg(&delay);
-if(rc)
+  
+  // Delay Input    
+  rc=fetch_uint32_arg(&delay);
+  if(rc)
   {
     printf("Delay must be provided.\n");
     return CmdReturnBadParameter1;
   }
 
+  //Step Input
   rcTwo = fetch_uint32_arg(&step);
   if(rcTwo)
   {
     step = 400;
     printf("User did not provided steps, default steps are 400.\n");
   }
-    //RPM = 480/360 * 80 * 60
 
-    //sets direction - REST will produce CCW, SET will create CW
-	  //HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
-	  //HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET);
-
+  //Rotation Input
   rcisCW = fetch_uint32_arg(&isCW);
   if(rcisCW)
   {
@@ -155,20 +152,26 @@ if(rc)
     printf("User did not provide the direction, so running in CW.\n");
   }  
 
+  //Telling motor to rotate CW or CCW
   if(isCW == 1)
   {
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET);
-  } else if(isCW == 0)
+  } 
+  else if(isCW == 0)
   {
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
   }
 
-if(isStepperEnabled == 1)
-{
+  //Checking if we need to switch on the Motor.
+  if(isStepperEnabled == 1)
+  {
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);  
-}
+  } else {
+    printf("Added another check if we need to turn on the moter. \n");
+    return CmdReturnOk;
+  }
 
-
+  //Rotating the motor
 	  for(int x = 0; x<step; x++)
 	  {
       //printf("inside for loop %d\n", x);
@@ -183,6 +186,11 @@ if(isStepperEnabled == 1)
   return CmdReturnOk;
 }
 
+/**
+  * @brief Timer11 elpased callback.
+  * @param TIM_HandleTypeDef timer
+  * @retval void enum. 
+  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   // Check which version of the timer triggered this callback and toggle LED
@@ -197,21 +205,32 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   }
 }
 
-ADD_CMD("step",timerEvent,"                step <delay> <step> <direction> 0=CW, 1=CCW");
+ADD_CMD("step",motorEvent,"                step <delay> <step> <direction> 0=CW, 1=CCW");
 
+/**
+  * @brief enable Disable stepper motor event.
+  * @param int mode, do we need to run this function interactively?
+  * @retval ParserReturnVal_t return code. 
+  */
 ParserReturnVal_t  enableDisableStepper(int mode)
 {
   if(mode != CMD_INTERACTIVE) return CmdReturnOk;
+  
+  //stepper and timer init
   stepperInit();
   timerInit();
+
   uint32_t stepperStatus, rc;
-   
+
+  //taking the input from user for enabling and disabling the stepper motor. 
   rc=fetch_uint32_arg(&stepperStatus);
   if(rc)
   {
     printf("Please enable or disable stepper controller.\n");
     return CmdReturnBadParameter1;
   }
+
+  //validating against the user input and reflecting it to the global variable.
   if(stepperStatus == 1)
   {   
     isStepperEnabled = 1; 
@@ -221,12 +240,18 @@ ParserReturnVal_t  enableDisableStepper(int mode)
     isStepperEnabled = 0; 
     printf("stepper motor disabled.\n");
   }
-      //enables or disables the stepper drive
+  
+  
 return CmdReturnOk;
 }
 
 ADD_CMD("se",enableDisableStepper,"                stepperenable <0|1>");
 
+/**
+  * @brief runs the motor in trapozoid profile
+  * @param int mode, do we need to run this function interactively?
+  * @retval ParserReturnVal_t return code. 
+  */
 ParserReturnVal_t  trapoStepperRunner(int mode)
 {
   if(mode != CMD_INTERACTIVE) return CmdReturnOk;
@@ -234,27 +259,31 @@ ParserReturnVal_t  trapoStepperRunner(int mode)
   timerInit();
   uint32_t stepTime, rc, directon, directionRc, rotationCount, rotationCountRc, delayOne, delayOneRc, delayTwo, delayTwoRc;
    
+  //User input for step time.
   rc=fetch_uint32_arg(&stepTime);
   if(rc)
   {
-    printf("Please enable or disable stepper controller.\n");
+    printf("please provide step time.\n");
     return CmdReturnBadParameter1;
   }
 
+  //User input for first and last delay.
   delayOneRc=fetch_uint32_arg(&delayOne);
   if(delayOneRc)
   {
-    printf("Please add delay One.\n");
+    printf("Please provid initial and final rotatio speed. \n");
     return CmdReturnBadParameter1;
   }
   
+  //User input for rotation speed. 
   delayTwoRc=fetch_uint32_arg(&delayTwo);
   if(delayTwoRc)
   {
-    printf("Please add delay two.\n");
+    printf("Please provid delay two.\n");
     return CmdReturnBadParameter1;
   }
 
+  //User inpit for direction.
   directionRc=fetch_uint32_arg(&directon);
   if(directionRc)
   {
@@ -262,10 +291,11 @@ ParserReturnVal_t  trapoStepperRunner(int mode)
     return CmdReturnBadParameter1;
   }
 
+  //User input for how many time this trapozid cycle should be repetade.
   rotationCountRc=fetch_uint32_arg(&rotationCount);
   if(rotationCountRc)
   {
-    printf("Please provide rotation Count.\n");
+    printf("Please provide motor rotation Count.\n");
     return CmdReturnBadParameter1;
   }
 
@@ -281,9 +311,10 @@ ParserReturnVal_t  trapoStepperRunner(int mode)
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);  
   }
 
-
+//rotation cycle.
 for(int i = 0; i < rotationCount; i++)
 {
+    //starting of slope.
   	for(int x = 0; x<stepTime; x++)
 	  {
       //printf("inside for loop %d\n", x);
@@ -294,6 +325,7 @@ for(int i = 0; i < rotationCount; i++)
       WDTFeed();
 	  }
 
+    //middle part.
     for(int x = 0; x<stepTime; x++)
 	  {
       //printf("inside for loop %d\n", x);
@@ -304,6 +336,7 @@ for(int i = 0; i < rotationCount; i++)
       WDTFeed();
 	  }
 
+    //ending of slope.
     for(int x = 0; x<stepTime; x++)
 	  {
       //printf("inside for loop %d\n", x);

@@ -123,19 +123,30 @@ ParserReturnVal_t timerEvent(int mode)
     //printf("User did not provided blink count, so blinking Built-In LED once. ")
   }
   printf("Built-In LED will be turnded ON and OFF for %ld microseconds and will repeate %ld times. \n", delay, blinkRepeateCount);
+ HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_SET);
+ for(int x = 0; x < 1024; x++) {
+   printf("Inside for loop : %d \n", x);
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 
-  for(int repeateCycle = 1; repeateCycle < blinkRepeateCount+1; repeateCycle++)
-  {
-    printf("Blinking Count: %d\n", repeateCycle);
-	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-	  DelayMS(delay);
-	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-	  DelayMS(delay);
-    timer_val = __HAL_TIM_GET_COUNTER(&htim11);
-    printf("Ticks: %ld\n", timer_val);
-    HAL_TIM_PeriodElapsedCallback(&htim11);
-    //
-  }
+        DelayMS(500);
+
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+
+        DelayMS(500);
+
+      }
+  // for(int repeateCycle = 1; repeateCycle < blinkRepeateCount+1; repeateCycle++)
+  // {
+  //   printf("Blinking Count: %d\n", repeateCycle);
+	//   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+	//   DelayMS(delay);
+	//   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+	//   DelayMS(delay);
+  //   timer_val = __HAL_TIM_GET_COUNTER(&htim11);
+  //   printf("Ticks: %ld\n", timer_val);
+  //   HAL_TIM_PeriodElapsedCallback(&htim11);
+  //   //
+  // }
   //WDTFeed();
   return CmdReturnOk;
 }

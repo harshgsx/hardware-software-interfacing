@@ -4,7 +4,7 @@
 
 # C source files for the project
 PROJ_NAME = timerLab5
-SRCS  = my_main.c mycode.s mytest.c timer_example.c
+SRCS  = my_main.c mycode.s mytest.c pwm_example.c
 BUILD = build
 #PROCESSOR = STM32G474xx
 #PROCESSOR = STM32L432xx
@@ -175,7 +175,7 @@ CFLAGS += -I $(HAL_INC)
 CFLAGS += -I $(MONITOR)
 CFLAGS += -I $(MONITOR)/decoder
 CFLAGS += --specs=nano.specs -u _printf_float
-#CFLAGS += -flto
+CFLAGS += -flto
 
 # Enable some HAL defines...  CubeMX turns these on when you configure
 # the peripherals.  If you want to configure them manually, these
@@ -196,13 +196,13 @@ LDFLAGS += -mthumb
 LDFLAGS += --specs=nano.specs -u _printf_float
 LDFLAGS += $(FLOAT)
 LDFLAGS += -ffunction-sections -fdata-sections
-#LDFLAGS += -flto
+LDFLAGS += -flto
 
 ASFLAGS =  -g -mlittle-endian -mcpu=cortex-m4
 #ASFLAGS += -march=armv7e-m
 ASFLAGS += -mthumb
 ASFLAGS += $(FLOAT)
-#ASFLAGS += -mfpu=fpv4-sp-d16 -mfloat-abi=soft
+ASFLAGS += -mfpu=fpv4-sp-d16 -mfloat-abi=soft
 ###################################################
 
 OBJS = $(addprefix $(BUILD)/,$(addsuffix .o,$(basename $(SRCS))))

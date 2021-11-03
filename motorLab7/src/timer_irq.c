@@ -104,38 +104,38 @@ ParserReturnVal_t StepSpeedAction(int mode)
 
     if(rcDelay || rcDir) {
     printf("Please specify the direction and delay.\n");
+     return CmdReturnBadParameter1;
+    }
 
     gDirection = dir;
 
     if(gIsStepperEnabled != 1)
     {
         printf("Please enable stepper motor.");
-        return CmdReturnOk
+        return CmdReturnOk;
     } else {
-    Timer11_Init();
-    gpioInit(delay);
+    
+    printf("Inside motor init\n");
+    gpioInit();
+    Timer11_Init(delay);
+    
 
     }
 
 
-    return CmdReturnBadParameter1;
-  }
+   
+  
 
 	return CmdReturnOk;
 }
 
-ADD_CMD("stepspeed",StepSpeedAction,"<dir> <delay>             Make stepper 
-                                                          step at a speed set by the delay value.\n")
+ADD_CMD("ss",StepSpeedAction,"<dir> <delay>             Make stepper step at a speed set by the delay value.\n");
 
 
 ParserReturnVal_t  enableDisableStepper(int mode)
 {
   if(mode != CMD_INTERACTIVE) return CmdReturnOk;
   
-  //stepper and timer init
-  stepperInit();
-  timerInit();
-
   uint32_t stepperStatus, rc;
 
   //taking the input from user for enabling and disabling the stepper motor. 
@@ -156,7 +156,10 @@ ParserReturnVal_t  enableDisableStepper(int mode)
     gIsStepperEnabled = 0; 
     printf("stepper motor disabled.\n");
   }
-ADD_CMD("se",enableDisableStepper,"0 | 1             enable or disable stepper.\n")
+
+  return CmdReturnOk;
+}
+ADD_CMD("se",enableDisableStepper,"         enable or disable stepper.\n");
 
 
 void TIM1_TRG_COM_TIM11_IRQHandler(void)
@@ -173,11 +176,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim )
         //Telling motor to rotate CW or CCW
         if(gDirection < 0)
         {
-            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RSET);
+            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
         } 
         else if(gDirection == 0)
         {
-            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RSET);
+            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
         }
         else if(gDirection > 0)
         {

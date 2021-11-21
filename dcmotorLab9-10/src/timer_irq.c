@@ -1,23 +1,14 @@
-/*******************************************************************************
-  * File Name          : < DC MOTOR.c>
-  * Description        : < implements a breathing LED in linear profile>
-  *                                              
-  * Author:              <Karanveer Singh and Gurvinder Singh>
-  * Date:                <Nov 3, 2021>				 
-  ******************************************************************************
-*/
-
 #include <stdio.h>
 #include <stdint.h>
 #include "common.h"
 #include <main.h>
 
-TIM_HandleTypeDef htim1;
+TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 extern IWDG_HandleTypeDef hiwdg;
 
 
-uint32_t rc = 0;
+uint32_t rcOne = 0;
 
 volatile uint32_t count = 0;
 volatile int16_t count_1 = 0;
@@ -33,8 +24,6 @@ int32_t MotorPos = 0;
 //         
 // RETURNS       :CmdReturnOk is successfull
 //  
-
-
 ParserReturnVal_t CmdEncoder(int mode)
 {
 
@@ -52,34 +41,34 @@ ParserReturnVal_t CmdEncoder(int mode)
 
    // timer 1 initialization. Used as three channel PWM timer.
    
-  htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 49;
-  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 199;
-  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim1.Init.RepetitionCounter = 0;
-  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  rc= HAL_TIM_Base_Init(&htim1);
-   if(rc!= HAL_OK)
+  htim2.Instance = TIM1;
+  htim2.Init.Prescaler = 49;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 199;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.RepetitionCounter = 0;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  rcOne= HAL_TIM_Base_Init(&htim2);
+   if(rcOne!= HAL_OK)
    {
     printf("Error");
    }
   sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-  rc = HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig);
-  if(rc!= HAL_OK)
+  rcOne = HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig);
+  if(rcOne!= HAL_OK)
    {
     printf("Error");
    }
-  rc = HAL_TIM_PWM_Init(&htim1) != HAL_OK;
-  if(rc!= HAL_OK)
+  rcOne = HAL_TIM_PWM_Init(&htim2) != HAL_OK;
+  if(rcOne != HAL_OK)
    {
     printf("Error");
    }
   
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  rc = HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig);
-  if(rc!= HAL_OK)
+  rcOne = HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig);
+  if(rcOne!= HAL_OK)
    {
     printf("Error");
    }
@@ -91,20 +80,20 @@ ParserReturnVal_t CmdEncoder(int mode)
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
   sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-  rc = HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1);
-  if(rc!= HAL_OK)
+  rcOne = HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1);
+  if(rcOne!= HAL_OK)
    {
     printf("Error");
    }
   
-  rc = HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2);
-  if(rc!= HAL_OK)
+  rcOne = HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_2);
+  if(rcOne!= HAL_OK)
    {
     printf("Error");
    }
   
-  rc = HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_3);
-  if(rc!= HAL_OK)
+  rcOne = HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_3);
+  if(rcOne!= HAL_OK)
    {
     printf("Error");
    }
@@ -116,8 +105,8 @@ ParserReturnVal_t CmdEncoder(int mode)
   sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
   sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
   sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
-  rc = HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig);
-  if(rc!= HAL_OK)
+  rcOne = HAL_TIMEx_ConfigBreakDeadTime(&htim2, &sBreakDeadTimeConfig);
+  if(rcOne!= HAL_OK)
   {
     printf("Error");
   }
@@ -192,15 +181,15 @@ ParserReturnVal_t CmdEncoder(int mode)
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, 0);
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, 0);
   HAL_TIM_Encoder_Start_IT(&htim3, TIM_CHANNEL_ALL);
-  //HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
-  //HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_2);
-  //HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_3);
+  //HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
+  //HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
+  //HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
  // TIM1->CCR1 = 30;
   return CmdReturnOk;
  
 }
 
-ADD_CMD("EncoderInit",CmdEncoder,"Encoder init")
+ADD_CMD("eci",CmdEncoder,"Encoder init")
 
 ParserReturnVal_t CmdEncoder2(int mode)
 {
@@ -208,9 +197,9 @@ ParserReturnVal_t CmdEncoder2(int mode)
   if(mode != CMD_INTERACTIVE) return CmdReturnOk;
   #ifdef NEVER
  //  HAL_TIM_Encoder_Start_IT(&htim3, TIM_CHANNEL_ALL);
- // HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
- // HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_2);
- // HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_3);
+ // HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
+ // HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
+ // HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
   // rc = fetch_int32_arg(&MotorPos);
   //if(rc) {
   // printf("Please Enter position between -2,147,483,646 and +2,147,483,646\n");
@@ -227,20 +216,20 @@ ParserReturnVal_t CmdEncoder2(int mode)
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, 0);
   }
      
-  
+
     // printf("count input capture count is %li \n", count);
      //printf("count TIM3 coutnt is %i \n", count_1);
      #endif
      // HAL_TIM_Encoder_Start_IT(&htim3, TIM_CHANNEL_ALL);
      int16_t position =  ((int16_t)(TIM3->CNT))/2;
-     printf("Position in degrees is %i \n", position);
+     printf("POS: %i º \n", position);
      
      
      return CmdReturnOk;
  }    
      
        
- ADD_CMD("Encode",CmdEncoder2,"Encode")   
+ ADD_CMD("pos",CmdEncoder2,"position")   
   
 
 

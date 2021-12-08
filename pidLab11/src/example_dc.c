@@ -45,6 +45,7 @@ const double encoderFullTurn = unitsPerEncoderTurn * gearsRatio;
 const double pid2pwm = 1.0; 
 volatile uint16_t currentPWM = period/2; 
 int32_t pwmStatus = 0;
+uint32_t direction = 3;
 
 TIM_HandleTypeDef tim1; 
 
@@ -121,6 +122,11 @@ ParserReturnVal_t LoopInit()
     GPIO_InitStruct.Alternate = 2;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_4;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
     
     __HAL_RCC_GPIOB_CLK_ENABLE();
     GPIO_InitStruct.Pin = GPIO_PIN_6 | GPIO_PIN_7;
@@ -257,8 +263,6 @@ ParserReturnVal_t GetSpeed()
 { 
   int32_t encoderDelta = encoderCurrent - encoderPrevious;
   double turnsDelta = (double)encoderDelta / encoderFullTurn;
-  // double degreeDelta = turnsDelta*360;
-  // double speedEncoder = (double)encoderDelta / timebase;
   double speedTurns = turnsDelta / timebase;
   double rpms = speedTurns * 60;
 
@@ -298,10 +302,16 @@ void CalculateSpeedsAndErrors(){
 ParserReturnVal_t SetSpeed()
 {
   double desiredSpeed;
+  
+  if(fetch_uint32_arg(&direction)){
+    printf("Please provide direction either 0 or 1. \n");
+    return CmdReturnBadParameter1;
+  }
 
   if (fetch_double_arg(&desiredSpeed))
   {
     printf("Please provide speed between 1 and 90.");
+    return CmdReturnBadParameter1;
   }
   else
   {
@@ -365,6 +375,16 @@ void TIM1_UP_TIM10_IRQHandler(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
   HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+
+  if(direction == 0)
+  {
+     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, 0);
+     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, 1);
+  } 
+  else if (direction == 1){
+     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, 1);
+     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, 0);
+  } 
 
   if (pwmStatus == 1){
 

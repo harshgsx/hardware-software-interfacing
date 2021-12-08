@@ -17,14 +17,14 @@ int32_t MotorPos = 0;
 
 
 
-// FUNCTION      : CmdPWM
+// FUNCTION      : EncoderInit
 // DESCRIPTION   : This function initializes two timers. Timer 11 for time base generation and timer
 //                 1 as PWM timer.
 // PARAMETERS    : int mode
 //         
 // RETURNS       :CmdReturnOk is successfull
 //  
-ParserReturnVal_t CmdEncoder(int mode)
+ParserReturnVal_t EncoderInit(int mode)
 {
 
  if(mode != CMD_INTERACTIVE) return CmdReturnOk;
@@ -189,7 +189,7 @@ ParserReturnVal_t CmdEncoder(int mode)
  
 }
 
-ADD_CMD("eci",CmdEncoder,"Encoder init")
+ADD_CMD("eci",EncoderInit,"Encoder init")
 
 ParserReturnVal_t CmdEncoder2(int mode)
 {

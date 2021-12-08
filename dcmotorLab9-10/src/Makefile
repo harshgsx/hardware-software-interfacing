@@ -4,7 +4,7 @@
 
 # C source files for the project
 PROJ_NAME = dcmotorLab9and10
-SRCS  = my_main.c mycode.s mytest.c dc_example.c timer_irq.c 
+SRCS  = my_main.c mycode.s mytest.c example_dc.c example_encoder.c 
 BUILD = build
 #PROCESSOR = STM32G474xx
 #PROCESSOR = STM32L432xx

@@ -51,8 +51,18 @@ TIM_HandleTypeDef tim1;
 
 
 
+typedef struct {
 
+  double P,I,D;  // constants to use
+  int32_t encoderCurrent, encoderPrevious;
+  double targetRPM;
+  double errorCurrent, errorPrevious, errorI, errorD;
+  int32_t status; // status of the PID
+  double PIDResult;
 
+}PID_CONTEXT;
+
+volatile PID_CONTEXT pid;
 /**
   * @brief Initializes all global variables with it's default values.
   * @param void
@@ -60,18 +70,20 @@ TIM_HandleTypeDef tim1;
   */
 void InitializePID(){
 
-  P = pidP;
-  D = pidD;
-  I = pidI;
-  encoderCurrent = 0;
-  encoderPrevious = 0;
-  errorCurrent = 0;
-  errorPrevious = 0;
-  errorI = 0; 
-  errorD = 0;
-  targetRPM = 0;
-  PIDResult = 0;  
-  pwmStatus = 0;
+  pid.P = pidP;
+  pid.D = pidD;
+  pid.I = pidI;
+
+  pid.encoderCurrent = 0;
+  pid.encoderPrevious = 0;
+  pid.errorCurrent = 0;
+  pid.errorPrevious = 0;
+  pid.errorI = 0; 
+  pid.errorD = 0;
+
+  pid.targetRPM = 0;
+  pid.PIDResult = 0;
+  pid.status = 0;
 }
 
 
@@ -261,12 +273,17 @@ ADD_CMD("encTicks", GetEncoderValue, "\t\tGet ticks of current encoder value")
   */
 ParserReturnVal_t GetSpeed()
 { 
-  int32_t encoderDelta = encoderCurrent - encoderPrevious;
+  
+ int32_t encoderDelta = pid.encoderCurrent - pid.encoderPrevious;;
   double turnsDelta = (double)encoderDelta / encoderFullTurn;
+  double degreeDelta = turnsDelta*360;
+  double speedEncoder = (double)encoderDelta / timebase;
   double speedTurns = turnsDelta / timebase;
+  double speedDegree = degreeDelta / timebase;
   double rpms = speedTurns * 60;
 
-  printf("RPM: %.2lf\n", rpms);
+  printf("Encoder: %.2lf, Speed: %.2lf, RPM: %.2lf, Degrees/s: %.2lf\n", 
+    speedEncoder, speedTurns, rpms, speedDegree);
 
   return CmdReturnOk;
 }
@@ -279,18 +296,18 @@ ADD_CMD("speed", GetSpeed, "\t\tGet current speed of DC Motor")
   */
 void CalculateSpeedsAndErrors(){
 
-  int32_t encoderDelta = encoderCurrent - encoderPrevious;
+  int32_t encoderDelta = pid.encoderCurrent - pid.encoderPrevious;
   double RPSDelta = (double)encoderDelta / encoderFullTurn;
   double RPM = (RPSDelta / timebase)*60;
   errorPrevious = errorCurrent;
   errorCurrent = targetRPM - RPM;
-  double errorDelta = (errorCurrent - errorPrevious);
+  double errorDelta = (pid.errorCurrent - pid.errorPrevious);
   errorD = errorDelta / timebase;
-  if(fabs(errorCurrent) > fabs(errorPrevious)){
-    errorI += (timebase * errorPrevious) + (errorDelta * timebase)/2;
+if(fabs(pid.errorCurrent) > fabs(pid.errorPrevious)){
+    pid.errorI += (timebase * pid.errorPrevious) + (errorDelta * timebase)/2;
   }
   else {
-    errorI += (timebase * errorCurrent) + (errorDelta * timebase)/2;
+    pid.errorI += (timebase * pid.errorCurrent) + (errorDelta * timebase)/2;
   }    
 }
 
@@ -319,8 +336,8 @@ ParserReturnVal_t SetSpeed()
     if (desiredSpeed > 1.00 && desiredSpeed <= 90.00)
     {
 
-      targetRPM = desiredSpeed;
-      pwmStatus = 1;
+     pid.targetRPM = desiredSpeed;
+      pid.status = 1;
       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
       HAL_TIM_PWM_Start(&tim1, TIM_CHANNEL_1);
@@ -345,8 +362,8 @@ ParserReturnVal_t StopMotor()
 { 
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
-  targetRPM = 0;
-  pwmStatus = 0;
+  pid.targetRPM = 0;
+  pid.status = 0;
   HAL_TIM_PWM_Stop(&tim1, TIM_CHANNEL_1);
   __HAL_TIM_SET_COMPARE(&tim1, TIM_CHANNEL_1, 0);
 
@@ -386,14 +403,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, 0);
   } 
 
-  if (pwmStatus == 1){
+  if (pid.status == 1){
 
-    encoderPrevious = encoderCurrent;
-    encoderCurrent = (int32_t)__HAL_TIM_GET_COUNTER(&tim3); 
+    pid.encoderPrevious = pid.encoderCurrent;
+    pid.encoderCurrent = (int32_t)__HAL_TIM_GET_COUNTER(&tim3); 
     CalculateSpeedsAndErrors();
-    PIDResult = (P * errorCurrent) + (I * errorI) + (D * errorD);
+    pid.PIDResult = (pid.P * pid.errorCurrent) + (pid.I * pid.errorI) + (pid.D * pid.errorD);
+
+    // Affect our plant
     currentPWM = __HAL_TIM_GET_COUNTER(&tim1); 
-    currentPWM += ((uint16_t)(PIDResult * pid2pwm));
+    currentPWM += ((uint16_t)(pid.PIDResult * pid2pwm));
+ 
     __HAL_TIM_SET_COMPARE(&tim1, TIM_CHANNEL_1, currentPWM);
     }
   

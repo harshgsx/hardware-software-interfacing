@@ -1,0 +1,8 @@
+build/
+deps/
+make_version
+gpioLab2.*
+version.c
+*~
+.depsdir
+openocd.log

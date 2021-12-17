@@ -98,7 +98,7 @@ ParserReturnVal_t LoopInit()
   /*Initialize PID structure*/
   InitializePID();
 
-  HAL_StatusTypeDef rc;
+  HAL_StatusTypeDef userInputReturnCode;
   GPIO_InitTypeDef GPIO_InitStruct = {0};
   
   __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -205,11 +205,11 @@ ParserReturnVal_t LoopInit()
   tim3.Init.Period = periodEncoder;
   tim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   tim3.Init.RepetitionCounter = 0;
-  rc = HAL_TIM_Base_Init(&tim3);
+  userInputReturnCode = HAL_TIM_Base_Init(&tim3);
   
-  if (rc != HAL_OK)
+  if (userInputReturnCode != HAL_OK)
   {
-      printf("Couldn't Initialize TIM3, Error Code=%u\n", rc);
+      printf("Couldn't Initialize TIM3, Error Code=%u\n", userInputReturnCode);
       return CmdReturnBadParameter1;
   }
 
@@ -223,23 +223,23 @@ ParserReturnVal_t LoopInit()
   encoderConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
   encoderConfig.IC2Prescaler = 0;
   encoderConfig.IC2Filter = 3;
-  rc = HAL_TIM_Encoder_Init(&tim3, &encoderConfig);
-  if (rc != HAL_OK)
+  userInputReturnCode = HAL_TIM_Encoder_Init(&tim3, &encoderConfig);
+  if (userInputReturnCode != HAL_OK)
   {
-      printf("Couldn't Initialize TIM3 Encoder, Error COde=%u\n",rc);
+      printf("Couldn't Initialize TIM3 Encoder, Error COde=%u\n",userInputReturnCode);
       return CmdReturnBadParameter1;
   }
 
-  rc = HAL_TIM_Encoder_Start(&tim3, TIM_CHANNEL_1);
-  if (rc != HAL_OK)
+  userInputReturnCode = HAL_TIM_Encoder_Start(&tim3, TIM_CHANNEL_1);
+  if (userInputReturnCode != HAL_OK)
   {
-      printf("Couldn't Start CHANNEL 1 on Encoder, Error Code=%u\n",rc);
+      printf("Couldn't Start CHANNEL 1 on Encoder, Error Code=%u\n",userInputReturnCode);
       return CmdReturnBadParameter1;
   }
-  rc = HAL_TIM_Encoder_Start(&tim3, TIM_CHANNEL_2);
-  if (rc != HAL_OK)
+  userInputReturnCode = HAL_TIM_Encoder_Start(&tim3, TIM_CHANNEL_2);
+  if (userInputReturnCode != HAL_OK)
   {
-    printf("Couldn't Start CHANNEL 2 on Encoder, Error Code=%u\n", rc);
+    printf("Couldn't Start CHANNEL 2 on Encoder, Error Code=%u\n", userInputReturnCode);
     return CmdReturnBadParameter1;
   }
 

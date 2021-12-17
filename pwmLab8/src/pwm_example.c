@@ -1,3 +1,11 @@
+/*******************************************************************************
+  * File Name          : pwm_example.c
+  * Description        : This src code controlls RGB LED light's brightness based on three channels. 
+                       : Harsh Hirenbhai Shah
+                       : Arsh Sandhu
+  Lab                  : 8
+  Date                 : Nov-28-2021
+  ******************************************************************************/
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>

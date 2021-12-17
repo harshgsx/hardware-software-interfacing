@@ -4,7 +4,7 @@
 
 # C source files for the project
 PROJ_NAME = pwmLab8
-SRCS  = my_main.c mycode.s mytest.c pwm_example.c stepper_example.c
+SRCS  = my_main.c mycode.s mytest.c pwm_example.c
 BUILD = build
 #PROCESSOR = STM32G474xx
 #PROCESSOR = STM32L432xx

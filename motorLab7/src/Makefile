@@ -4,7 +4,7 @@
 
 # C source files for the project
 PROJ_NAME = motorLab7
-SRCS  = my_main.c mycode.s mytest.c stepper_example.c timer_irq.c
+SRCS  = my_main.c mycode.s mytest.c stepper_example.c
 BUILD = build
 #PROCESSOR = STM32G474xx
 #PROCESSOR = STM32L432xx

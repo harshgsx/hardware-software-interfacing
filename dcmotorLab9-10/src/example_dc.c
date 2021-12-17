@@ -25,13 +25,10 @@ uint8_t checkResult = 0;
 
 
 
-// FUNCTION      : CmdPWM
-// DESCRIPTION   : This function initializes two timers. Timer 11 for time base generation and timer
-//                 1 as PWM timer.
+// FUNCTION      : DCInit
+// DESCRIPTION   : This function initilizes two timers 11 and 1 to controll two dc motors.
 // PARAMETERS    : int mode
-//         
 // RETURNS       :CmdReturnOk is successfull
-//  
 ParserReturnVal_t DCInit(int mode)
 {
 
@@ -139,6 +136,10 @@ ParserReturnVal_t DCInit(int mode)
 
 ADD_CMD("dci",DCInit,"DC motor init")
 
+// FUNCTION      : RunDC
+// DESCRIPTION   : Runs DC motor command specified by User.
+// PARAMETERS    : int mode
+// RETURNS       : CmdReturnOk is successfull
 ParserReturnVal_t RunDC(int mode)
 {
 
@@ -211,9 +212,8 @@ ParserReturnVal_t RunDC(int mode)
 
 // FUNCTION      :TIM1_TRG_COM_TIM11_IRQHandler
 // DESCRIPTION   :interrupt handler for timer 11 
-// PARAMETERS    : void
-//         
-// RETURNS       :void
+// PARAMETERS    : void     
+// RETURNS       : void
 //  
 void TIM1_TRG_COM_TIM11_IRQHandler(void){
    HAL_TIM_IRQHandler(&htim11);
@@ -224,7 +224,6 @@ void TIM1_TRG_COM_TIM11_IRQHandler(void){
 // DESCRIPTION   :HAL callback function for interrupt handler for timer 11 
 // PARAMETERS    :TIM_HandleTypeDef* htim -
 //                 pointer to TIM_HandleTypeDef structure 
-//         
 // RETURNS       :void
 //   
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim){

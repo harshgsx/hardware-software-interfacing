@@ -141,16 +141,11 @@ ParserReturnVal_t EncoderInit(int mode)
     Error_Handler();
   }
   
-  // GPIO pin configuration 
+
   __HAL_RCC_GPIOA_CLK_ENABLE();
- // __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
   GPIO_InitTypeDef GPIO_InitStruct;
   
-  /*TIM1 GPIO Configuration
-  PA8     ------> TIM1_CH1
-  PA9     ------> TIM1_CH2
-  PA10     ------> TIM1_CH3
-    */
   GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -200,8 +195,8 @@ ParserReturnVal_t CmdEncoder2(int mode)
  // HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
  // HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
  // HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
-  // rc = fetch_int32_arg(&MotorPos);
-  //if(rc) {
+  // userInputReturnCode = fetch_int32_arg(&MotorPos);
+  //if(userInputReturnCode) {
   // printf("Please Enter position between -2,147,483,646 and +2,147,483,646\n");
   //} 
   

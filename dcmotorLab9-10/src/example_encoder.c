@@ -3,12 +3,12 @@
 #include "common.h"
 #include <main.h>
 
-TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim3;
 extern IWDG_HandleTypeDef hiwdg;
 
 
-uint32_t rcOne = 0;
+uint32_t userInputReturnCode = 0;
 
 volatile uint32_t count = 0;
 volatile int16_t count_1 = 0;
@@ -41,34 +41,34 @@ ParserReturnVal_t EncoderInit(int mode)
 
    // timer 1 initialization. Used as three channel PWM timer.
    
-  htim2.Instance = TIM1;
-  htim2.Init.Prescaler = 49;
-  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 199;
-  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim2.Init.RepetitionCounter = 0;
-  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  rcOne= HAL_TIM_Base_Init(&htim2);
-   if(rcOne!= HAL_OK)
+  htim1.Instance = TIM1;
+  htim1.Init.Prescaler = 49;
+  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim1.Init.Period = 199;
+  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim1.Init.RepetitionCounter = 0;
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  userInputReturnCode= HAL_TIM_Base_Init(&htim1);
+   if(userInputReturnCode!= HAL_OK)
    {
     printf("Error");
    }
   sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-  rcOne = HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig);
-  if(rcOne!= HAL_OK)
+  userInputReturnCode = HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig);
+  if(userInputReturnCode!= HAL_OK)
    {
     printf("Error");
    }
-  rcOne = HAL_TIM_PWM_Init(&htim2) != HAL_OK;
-  if(rcOne != HAL_OK)
+  userInputReturnCode = HAL_TIM_PWM_Init(&htim1) != HAL_OK;
+  if(userInputReturnCode != HAL_OK)
    {
     printf("Error");
    }
   
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  rcOne = HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig);
-  if(rcOne!= HAL_OK)
+  userInputReturnCode = HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig);
+  if(userInputReturnCode!= HAL_OK)
    {
     printf("Error");
    }
@@ -80,20 +80,20 @@ ParserReturnVal_t EncoderInit(int mode)
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
   sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-  rcOne = HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1);
-  if(rcOne!= HAL_OK)
+  userInputReturnCode = HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1);
+  if(userInputReturnCode!= HAL_OK)
    {
     printf("Error");
    }
   
-  rcOne = HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_2);
-  if(rcOne!= HAL_OK)
+  userInputReturnCode = HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2);
+  if(userInputReturnCode!= HAL_OK)
    {
     printf("Error");
    }
   
-  rcOne = HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_3);
-  if(rcOne!= HAL_OK)
+  userInputReturnCode = HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_3);
+  if(userInputReturnCode!= HAL_OK)
    {
     printf("Error");
    }
@@ -105,8 +105,8 @@ ParserReturnVal_t EncoderInit(int mode)
   sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
   sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
   sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
-  rcOne = HAL_TIMEx_ConfigBreakDeadTime(&htim2, &sBreakDeadTimeConfig);
-  if(rcOne!= HAL_OK)
+  userInputReturnCode = HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig);
+  if(userInputReturnCode!= HAL_OK)
   {
     printf("Error");
   }
@@ -177,8 +177,8 @@ ParserReturnVal_t EncoderInit(int mode)
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, 0);
   HAL_TIM_Encoder_Start_IT(&htim3, TIM_CHANNEL_ALL);
   //HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
-  //HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
-  //HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
+  //HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_2);
+  //HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_3);
  // TIM1->CCR1 = 30;
   return CmdReturnOk;
  
@@ -192,9 +192,9 @@ ParserReturnVal_t CmdEncoder2(int mode)
   if(mode != CMD_INTERACTIVE) return CmdReturnOk;
   #ifdef NEVER
  //  HAL_TIM_Encoder_Start_IT(&htim3, TIM_CHANNEL_ALL);
- // HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
- // HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
- // HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
+ // HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
+ // HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_2);
+ // HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_3);
   // userInputReturnCode = fetch_int32_arg(&MotorPos);
   //if(userInputReturnCode) {
   // printf("Please Enter position between -2,147,483,646 and +2,147,483,646\n");
